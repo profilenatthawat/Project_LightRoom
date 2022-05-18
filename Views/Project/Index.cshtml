@@ -1,0 +1,146 @@
+
+@{
+    ViewData["Title"] = "Index";
+}
+@* 
+<div class="col-12">
+        <h4 class="text-info">เพิ่มหลอดไฟ</h4>
+</div>
+<br>
+<form method="post" asp-controller="Project" asp-action="Addlight">
+    <input type="hidden" name="create_date">
+    <input type="hidden" name="update_date">
+    <div class="form-group row">
+        <div class="col-md-3">
+            <input type="text"  name="light" class="form-control form-control-sm"> 
+        </div>
+        <div class="col-md-4">
+            <input type="submit" class="btn btn-success" class="form-control form-control-sm" value="เพิ่ม">
+        </div>
+    </div>
+</form> *@
+
+
+<div class="form-group row pt-3">
+    <div class="col-md-10">
+        <h4 class="text-info"><i class="nav-icon fas fa-table"></i> หลอดไฟในบ้านทั้งหมด</h4>
+    </div>
+    <div class="col-md-2">
+            <form  method="post" asp-action="Addlight" asp-controller="Project"> 
+                <button type="submit" class="btn btn-success text-white btn-block"><i class="fas fa-plus"></i>เพิ่มหลอดไฟ</button>
+            </form>
+        </div>
+</div>
+
+<div class="table-responsive">
+    <table id="DT_load_light" style="width:100%"
+        class="table table-striped table-bordered nowrap display no-footer dtr-inline collapsed dataTable">
+        <thead align="center">
+            <tr>
+                <th scope="col">หลอดที่</th>
+                <th scope="col">สถานะ</th>
+                <th scope="col">เปิด/ปิด</th>
+                <th scope="col">ลบ</th>
+            </tr>
+        </thead>
+        <tbody align="center">
+            @{
+                int number = 1;
+            }
+            @foreach (var item in Model.light)
+            {
+                <tr>
+                    <form id="@number" method="post" asp-action="CallInLineNotify" asp-controller="Project">
+                        <td width="5%">
+                            <input type="hidden" name="number" value="@number" >
+                            <input type="hidden" name="status" value="@item.status" >
+                            <input type="hidden" name="id" value="@item.id" >
+                            @number
+                        </td>
+                        @{
+                            number++;
+                        }
+                        <td width="15%">
+                             @if (@item.status == "on")
+                            {
+                                <span class="fa fa-check-circle" style="color: green;"></span> 
+                            }
+                            else
+                            {
+                                <span class="fa fa-minus-circle " style="color: red;"></span>
+                            }
+                        </td>
+                        @* <td width="5%">
+                            <a class='btn btn-info btn-sm' onclick=status('Changstatus?id='+@item.id)>
+                                <i class="fas fa-power-off"></i>
+                            </a>
+                            <form id="changstatus" method="post" asp-action="Changstatus" asp-controller="Project">
+                                <input type="hidden" name="id" value="@item.id" >
+                                <input type="hidden" name="status" value="@item.status" >
+                                <button type="submit" class='btn btn-info btn-sm'><i class="fas fa-power-off"></i></button>
+                            </form>
+                        </td> *@
+                        <td width="5%">
+                           <button type="submit" class='btn btn-info btn-sm'><i class="fas fa-power-off"></i></button>
+                                
+                            
+                        </td>
+                        <td width="5%">
+                            <a class='btn btn-danger btn-sm text-white' onclick=Delete('/Project/Delete?id='+@item.id)><i class="fas fa-trash-alt"></i></a>
+                        </td>
+                    </form>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts{
+<script type="text/javascript">
+
+$(document).ready(function () {
+
+    $('#DT_load_light').DataTable({
+        "destroy": true, 
+        "ordering": false, 
+        "language": {
+            "lengthMenu"
+                : "แสดงข้อมูล _MENU_ แถว ต่อหน้า", "zeroRecords": "ไม่พบข้อมูล!", "info"
+                : "กำลังแสดงหน้าที่ _PAGE_ จากทั้งหมด _PAGES_ หน้า", "infoEmpty"
+                : "ไม่พบข้อมูล!", "infoFiltered": "(ค้นหาจากข้อมูลทั้งหมด _MAX_ แถว)"
+                , "search": "ค้นหา", "emptyTable": "ไม่มีข้อมูล", "paginate":
+            { "previous": "หน้าก่อนหน้า", "next": "หน้าถัดไป" },
+        },
+    });
+
+});
+
+
+function Delete(url) {
+        swal({
+            title: "คุณต้องการลบนี้หรือไม่ ?",
+            text: "หากต้องการกู้ข้อมูล ให้แจ้งฝ่ายผู้ดูแลระบบ",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+            buttons: ["ยกเลิก", "ตกลง"],
+        }).then((willDelete) => {
+            if (willDelete) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    success: function (data) {
+                        if (data.success) {
+                            toastr.success(data.message);
+                            setTimeout(() => {  console.log("Delay!"); }, 10000);
+                            location.reload();
+                        } else {
+                            toastr.error(data.message);
+                        }
+                    },
+                });
+            }
+        });
+}
+</script>
+}
